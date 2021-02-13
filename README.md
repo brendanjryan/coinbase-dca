@@ -1,6 +1,6 @@
 # `coinbase-pro-dca`
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/brendanjryan/coinbase-dca-node)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/brendanjryan/coinbase-dca)
 
 A simple app for making buys from Coinbase Pro at a user-configured interval. Useful for entering a market via over a long period of time via "dollar cost averaging".
 
