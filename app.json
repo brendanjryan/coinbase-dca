@@ -1,0 +1,48 @@
+{
+  "name": "Coinbase DCA",
+  "description": "A simple app for making DCA buys on coinbase pro",
+  "repository": "",
+  "logo": "",
+  "keywords": [],
+  "env": {
+    "COINBASE_API_KEY": {
+      "description": "The API Key for your coinbase account.",
+      "value": ""
+    },
+    "COINBASE_API_SECRET": {
+      "description": "The secret for your Coinbase API key.",
+      "value": ""
+    },
+    "COINBASE_API_PASSPHRASE": {
+      "description": "The passphrase for your coinbase API key.",
+      "value": ""
+    },
+    "COINBASE_API_SANDBOX": {
+      "description": "Whether or not the coinbase sandbox should be used.",
+      "value": "false" 
+    },
+    "ORDERS": {
+      "description": "Hash of orders that you wish to place. Must be of the form `{\"orders\": []}`",
+      "value": ""
+    },
+    "CURRENCY": {
+      "description": "The base currency which you want to transact in.",
+      "value": "USD"
+    },
+    "COINBASE_LIMIT": {
+      "description": "The multiplier of the current market price which you want to use for limit orders.",
+      "value": "0.95"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    },
+    "worker": {
+      "quantity": 1
+    }
+  },
+  "addons": [
+    "scheduler:standard"
+  ]
+}
