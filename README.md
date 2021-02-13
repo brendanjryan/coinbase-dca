@@ -1,4 +1,4 @@
-# `coinbase-pro-dca`
+# `coinbase-dca`
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/brendanjryan/coinbase-dca)
 
