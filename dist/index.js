@@ -37,13 +37,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var coinbase_pro_node_1 = require("coinbase-pro-node");
-var Sentry = require("@sentry/node");
 var Decimal = require("decimal.js");
 require("dotenv").config();
-Sentry.init({
-    dsn: "https://f9ebc13023364348a1e6cbeea863c7e3@o413551.ingest.sentry.io/5300318",
-    environment: process.env.NODE_ENV
-});
 // API Keys can be generated here:
 // https://pro.coinbase.com/profile/api
 // https://public.sandbox.pro.coinbase.com/profile/api
@@ -275,7 +270,6 @@ function main() {
             case 3:
                 e_1 = _a.sent();
                 console.log("error while processing: ", e_1);
-                Sentry.captureException(e_1);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
