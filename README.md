@@ -70,8 +70,11 @@ The multiplier of the current market price which you want to use for limit order
 
 For example, if the current market price for BTC-USD is \$100, and your `COINBASE_LIMIT` is set to `0.95` a `LIMIT` order for `$95` will be placed.
 
+
 ## Limitations
 
 The following features are _not_ supported. If you would interested in seeing them implemented please feel free to create a PR or Issue!
 
 - Automatic deposits to Coinbase from an external bank account.
+- "Absolute" limit price for small cap assets
+- Configurable limits for different assets
