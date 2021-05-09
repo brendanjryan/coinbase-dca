@@ -33,7 +33,7 @@ const auth = {
   passphrase: process.env.COINBASE_API_PASSPHRASE,
   // The Sandbox is for testing only and offers a subset of the products/assets:
   // https://docs.pro.coinbase.com/#sandbox
-  useSandbox: !!process.env.COINBASE_API_SANDBOX,
+  useSandbox: JSON.parse(process.env.COINBASE_API_SANDBOX),
 };
 
 type ProductOrders = {
