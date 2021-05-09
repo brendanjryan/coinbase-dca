@@ -209,7 +209,7 @@ async function main(): Promise<void> {
         new Decimal(order.amount).div(bidPrice)
       )
       .catch(async (err) => {
-        // try to place a market order if limit order didn"t work
+        // try to place a market order if limit order didn't work
         console.log("Error placing limit order: ", getErrorMessage(err));
         console.log("Attempting to place market order...");
         placedOrder = await orderer
