@@ -12,6 +12,18 @@ var Decimal = require("decimal.js");
 
 require("dotenv").config();
 
+declare const process: {
+  env: {
+    COINBASE_API_KEY: string;
+    COINBASE_API_SECRET: string;
+    COINBASE_API_PASSPHRASE: string;
+    COINBASE_API_SANDBOX: string;
+    COINBASE_LIMIT: string;
+    CURRENCY: string;
+    ORDERS: string;
+  };
+};
+
 // API Keys can be generated here:
 // https://pro.coinbase.com/profile/api
 // https://public.sandbox.pro.coinbase.com/profile/api
@@ -21,7 +33,7 @@ const auth = {
   passphrase: process.env.COINBASE_API_PASSPHRASE,
   // The Sandbox is for testing only and offers a subset of the products/assets:
   // https://docs.pro.coinbase.com/#sandbox
-  useSandbox: !!process.env.COINBASE_SANDBOX,
+  useSandbox: JSON.parse(process.env.COINBASE_API_SANDBOX),
 };
 
 type ProductOrders = {
