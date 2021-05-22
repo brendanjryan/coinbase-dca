@@ -234,14 +234,14 @@ async function main(): Promise<void> {
   // We place sell orders _before_ buy orders in case we need to use the proceeds for a 
   // downstream buy.
 
-  console.log("Placing sell orders: ", orders.sell.length);
+  console.log("Placing sell orders: ", orders.sell && orders.sell.length);
   await placeOrders(
     orderer,
     orders.sell,
     OrderSide.SELL,
   )
 
-  console.log("Placing buy orders: ", orders.buy.length);
+  console.log("Placing buy orders: ", orders.buy && orders.buy.length);
   await placeOrders(
     orderer,
     orders.buy,
