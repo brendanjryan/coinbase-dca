@@ -187,6 +187,9 @@ function getErrorMessage(error: AxiosError): string {
 }
 
 async function placeOrders(orderer: Orderer, orders: Array<ProductOrder>,side: OrderSide) {
+  if (!orders) {
+    return
+  }
    for (const order of orders) {
     console.log("Placing order: ", order);
 
