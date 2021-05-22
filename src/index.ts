@@ -37,7 +37,8 @@ const auth = {
 };
 
 type ProductOrders = {
-  orders: Array<ProductOrder>;
+  buy: Array<ProductOrder>;
+  sell: Array<ProductOrder>;
 };
 
 type ProductOrder = {
@@ -131,7 +132,8 @@ class Orderer {
   placeLimitOrder = async (
     product: string,
     price: typeof Decimal,
-    size: typeof Decimal
+    size: typeof Decimal,
+    side: OrderSide,
   ): Promise<Order> => {
     let [to, from] = parseProduct(product);
 
@@ -146,9 +148,9 @@ class Orderer {
     let order: LimitOrder = {
       type: OrderType.LIMIT,
       product_id: product,
-      side: OrderSide.BUY,
       price: priceFixed.toString(),
       size: sizeFixed.toString(),
+      side: side,
     };
 
     return await this.client.rest.order.placeOrder(order);
@@ -156,7 +158,8 @@ class Orderer {
 
   placeMarketOrder = async (
     product: string,
-    amount: typeof Decimal
+    amount: typeof Decimal,
+    side: OrderSide,
   ): Promise<Order> => {
     let [_, from] = parseProduct(product);
 
@@ -171,8 +174,8 @@ class Orderer {
     let order: MarketOrder = {
       type: OrderType.MARKET,
       product_id: product,
-      side: OrderSide.BUY,
       funds: amountFixed.toString(),
+      side: side,
     };
 
     return await this.client.rest.order.placeOrder(order);
@@ -181,6 +184,37 @@ class Orderer {
 
 function getErrorMessage(error: AxiosError): string {
   return error.response?.data.message || error.message;
+}
+
+async function placeOrders(orderer: Orderer, orders: Array<ProductOrder>,side: OrderSide) {
+   for (const order of orders) {
+    console.log("Placing order: ", order);
+
+    let bidPrice = await orderer.bidPrice(order.product);
+
+    let placedOrder = await orderer
+      .placeLimitOrder(
+        order.product,
+        new Decimal(bidPrice),
+        new Decimal(order.amount).div(bidPrice),
+        side,
+      )
+      .catch(async (err) => {
+        // try to place a market order if limit order didn't work
+        console.log("Error placing limit order: ", getErrorMessage(err));
+        console.log("Attempting to place market order...");
+        placedOrder = await orderer
+          .placeMarketOrder(order.product, new Decimal(order.amount), side)
+          .catch(async (err) => {
+            console.log("Error placing market order: ", getErrorMessage(err));
+          });
+      });
+
+    placedOrder &&
+      console.log(
+        `Successfully placed order: ${placedOrder.product_id}: ${placedOrder.size} @ $${placedOrder.price}`
+      );
+  }
 }
 
 async function main(): Promise<void> {
@@ -197,33 +231,24 @@ async function main(): Promise<void> {
   let accounts = await orderer.getAccounts(process.env.CURRENCY);
   console.log("Got accounts: ", accounts);
 
-  for (const order of orders.orders) {
-    console.log("Placing order: ", order);
+  // We place sell orders _before_ buy orders in case we need to use the proceeds for a 
+  // downstream buy.
 
-    let bidPrice = await orderer.bidPrice(order.product);
+  console.log("Placing sell orders: ", orders.sell.length);
+  await placeOrders(
+    orderer,
+    orders.sell,
+    OrderSide.SELL,
+  )
 
-    let placedOrder = await orderer
-      .placeLimitOrder(
-        order.product,
-        new Decimal(bidPrice),
-        new Decimal(order.amount).div(bidPrice)
-      )
-      .catch(async (err) => {
-        // try to place a market order if limit order didn't work
-        console.log("Error placing limit order: ", getErrorMessage(err));
-        console.log("Attempting to place market order...");
-        placedOrder = await orderer
-          .placeMarketOrder(order.product, new Decimal(order.amount))
-          .catch(async (err) => {
-            console.log("Error placing market order: ", getErrorMessage(err));
-          });
-      });
+  console.log("Placing buy orders: ", orders.buy.length);
+  await placeOrders(
+    orderer,
+    orders.buy,
+    OrderSide.BUY,
+  )
 
-    placedOrder &&
-      console.log(
-        `Successfully placed order: ${placedOrder.product_id}: ${placedOrder.size} @ $${placedOrder.price}`
-      );
-  }
+  console.log("finished placing all orders!");
 }
 
 (async () => {
