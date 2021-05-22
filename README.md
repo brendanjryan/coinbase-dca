@@ -57,7 +57,7 @@ Each buy can be made up of multiple orders, which must be of the form
 For example: a buy of $20 USD of Bitcoin and $10 USD of Ethereum would be represented by the following:
 
 ```
-{"orders": [{"product": "BTC-USD", "amount": 20}, {"product": "ETH-USD", "amount": 10}]}
+{"buy": [{"product": "BTC-USD", "amount": 20}, {"product": "ETH-USD", "amount": 10}]}
 ```
 
 `CURRENCY`
@@ -69,7 +69,6 @@ The base currency which you want to transact in - normally USD.
 The multiplier of the current market price which you want to use for limit orders.
 
 For example, if the current market price for BTC-USD is \$100, and your `COINBASE_LIMIT` is set to `0.95` a `LIMIT` order for `$95` will be placed.
-
 
 ## Limitations
 
