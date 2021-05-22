@@ -139,9 +139,10 @@ class Orderer {
 
     let toCurrency = await this.getCurrency(to);
     let fromCurrency = await this.getCurrency(from);
+    let roundingDir = side == OrderSide.BUY ? Decimal.ROUND_DOWN : Decimal.ROUND_UP
 
-    let sizeFixed = size.toNearest(toCurrency.minSize, Decimal.ROUND_DOWN);
-    let priceFixed = price.toNearest(fromCurrency.minSize, Decimal.ROUND_DOWN);
+    let sizeFixed = size.toNearest(toCurrency.minSize, roundingDir);
+    let priceFixed = price.toNearest(fromCurrency.minSize, roundingDir);
     console.log(
       `Placing a limit order for ${product}: ${sizeFixed} @ $${priceFixed}`
     );
@@ -167,7 +168,7 @@ class Orderer {
 
     let amountFixed = amount.toNearest(
       fromCurrency.minSize,
-      Decimal.ROUND_DOWN
+      side == OrderSide.BUY ? Decimal.ROUND_DOWN : Decimal.ROUND_UP
     );
     console.log(`Placing a market order for ${product}: $${amountFixed}`);
 
