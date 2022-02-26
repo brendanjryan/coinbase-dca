@@ -36,19 +36,17 @@ const auth = {
   useSandbox: JSON.parse(process.env.COINBASE_API_SANDBOX),
 };
 
-type ProductOrders = {
-  buy: Array<ProductOrder>;
-  sell: Array<ProductOrder>;
+type OrderConfig = {
+  // A constant scaling factor which will be applied to each order.
+  // Defaults to 1.
+  scale?: number;
+  buyOrders: Array<ProductOrder>;
+  sellOrders: Array<ProductOrder>;
 };
 
 type ProductOrder = {
   product: string;
   amount: number;
-};
-
-type ParsedProduct = {
-  to: string;
-  from: string;
 };
 
 function parseProduct(p: string): [string, string] {
@@ -67,6 +65,9 @@ class Orderer {
   limit: number;
   currency: string;
   currencyInfo: [string, CurrencyDetails] | {};
+
+  // The default scaling factor which will be applied to all orders if none is specified.
+  DEFAULT_SCALE = 1;
 
   constructor(client: CoinbasePro, limit: number, currency: string) {
     this.client = client;
@@ -133,13 +134,14 @@ class Orderer {
     product: string,
     price: typeof Decimal,
     size: typeof Decimal,
-    side: OrderSide,
+    side: OrderSide
   ): Promise<Order> => {
     let [to, from] = parseProduct(product);
 
     let toCurrency = await this.getCurrency(to);
     let fromCurrency = await this.getCurrency(from);
-    let roundingDir = side == OrderSide.BUY ? Decimal.ROUND_DOWN : Decimal.ROUND_UP
+    let roundingDir =
+      side == OrderSide.BUY ? Decimal.ROUND_DOWN : Decimal.ROUND_UP;
 
     let sizeFixed = size.toNearest(toCurrency.minSize, roundingDir);
     let priceFixed = price.toNearest(fromCurrency.minSize, roundingDir);
@@ -160,7 +162,7 @@ class Orderer {
   placeMarketOrder = async (
     product: string,
     amount: typeof Decimal,
-    side: OrderSide,
+    side: OrderSide
   ): Promise<Order> => {
     let [_, from] = parseProduct(product);
 
@@ -187,12 +189,19 @@ function getErrorMessage(error: AxiosError): string {
   return error.response?.data.message || error.message;
 }
 
-async function placeOrders(orderer: Orderer, orders: Array<ProductOrder>,side: OrderSide) {
+async function placeOrders(
+  orderer: Orderer,
+  orders: Array<ProductOrder>,
+  side: OrderSide,
+  scale: number
+) {
   if (!orders) {
-    return
+    return;
   }
-   for (const order of orders) {
+  for (const order of orders) {
     console.log("Placing order: ", order);
+
+    const scaledAmount = order.amount * scale;
 
     let bidPrice = await orderer.bidPrice(order.product);
 
@@ -200,15 +209,15 @@ async function placeOrders(orderer: Orderer, orders: Array<ProductOrder>,side: O
       .placeLimitOrder(
         order.product,
         new Decimal(bidPrice),
-        new Decimal(order.amount).div(bidPrice),
-        side,
+        new Decimal(scaledAmount).div(bidPrice),
+        side
       )
       .catch(async (err) => {
         // try to place a market order if limit order didn't work
         console.log("Error placing limit order: ", getErrorMessage(err));
         console.log("Attempting to place market order...");
         placedOrder = await orderer
-          .placeMarketOrder(order.product, new Decimal(order.amount), side)
+          .placeMarketOrder(order.product, new Decimal(scaledAmount), side)
           .catch(async (err) => {
             console.log("Error placing market order: ", getErrorMessage(err));
           });
@@ -222,7 +231,10 @@ async function placeOrders(orderer: Orderer, orders: Array<ProductOrder>,side: O
 }
 
 async function main(): Promise<void> {
-  let orders: ProductOrders = JSON.parse(process.env.ORDERS);
+  let orders: OrderConfig = JSON.parse(process.env.ORDERS);
+
+  // set default scale if none provided.
+  orders.scale = orders.scale || this.DEFAULT_SCALE;
 
   let orderer = new Orderer(
     new CoinbasePro(auth),
@@ -235,22 +247,14 @@ async function main(): Promise<void> {
   let accounts = await orderer.getAccounts(process.env.CURRENCY);
   console.log("Got accounts: ", accounts);
 
-  // We place sell orders _before_ buy orders in case we need to use the proceeds for a 
+  // We place sell orders _before_ buy orders in case we need to use the proceeds for a
   // downstream buy.
 
   console.log("Placing sell orders...");
-  await placeOrders(
-    orderer,
-    orders.sell,
-    OrderSide.SELL,
-  )
+  await placeOrders(orderer, orders.sellOrders, OrderSide.SELL, orders.scale);
 
   console.log("Placing buy orders...");
-  await placeOrders(
-    orderer,
-    orders.buy,
-    OrderSide.BUY,
-  )
+  await placeOrders(orderer, orders.buyOrders, OrderSide.BUY, orders.scale);
 
   console.log("finished placing all orders!");
 }
