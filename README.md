@@ -43,9 +43,9 @@ Whether or not the coinbase sandbox should be used.
 
 `ORDERS`
 
-"Hash of orders that you wish to place. Must be of the form`{\"orders\": []}`
+"Hash of orders that you wish to place. Must be of the form`{\"<order_type>\": []}`
 
-Each buy can be made up of multiple orders, which must be of the form
+Each buy/sell can be made up of multiple orders, which must be of the form
 
 ```
 {
