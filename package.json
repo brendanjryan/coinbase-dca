@@ -11,12 +11,8 @@
   "author": "brendan ryan",
   "license": "ISC",
   "dependencies": {
-<<<<<<< Updated upstream
-    "axios": "^0.21.2",
-=======
     "@types/jest": "^27.4.1",
     "axios": "^0.21.1",
->>>>>>> Stashed changes
     "coinbase-pro-node": "^2.4.0",
     "decimal": "0.0.2",
     "decimal.js": "^10.2.0",
