@@ -10,8 +10,8 @@
   "author": "brendan ryan",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.2",
-    "coinbase-pro-node": "^2.4.0",
+    "axios": "^0.21.4",
+    "coinbase-pro-node": "^4.0.0",
     "decimal": "0.0.2",
     "decimal.js": "^10.2.0",
     "dotenv": "^8.2.0",
@@ -20,6 +20,7 @@
   "devDependencies": {
     "app.json": "^1.3.0",
     "prettier": "^2.0.5",
+    "ts-node": "^10.7.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.3.0"
   }
