@@ -8,7 +8,8 @@ import type {
 } from "coinbase-pro-node";
 
 import { AxiosError } from "axios";
-var Decimal = require("decimal.js");
+
+const Decimal = require("decimal.js");
 
 require("dotenv").config();
 
@@ -49,11 +50,6 @@ type ProductOrder = {
   amount: number;
 };
 
-function parseProduct(p: string): [string, string] {
-  let parts = p.split("-");
-  return [parts[0], parts[1]];
-}
-
 type CurrencyDetails = {
   currency: string;
   minPrecision: number;
@@ -80,7 +76,7 @@ class Orderer {
     console.log("Initializing orderer");
 
     // retrieve currency info for base currency
-    this.getCurrency(this.currency);
+    await this.getCurrency(this.currency);
   };
 
   // retrieves information about a given currency
@@ -123,6 +119,12 @@ class Orderer {
     return Number(stats.last) * this.limit;
   };
 
+
+  parseProduct = (p: string): [string, string] => {
+    let parts = p.split("-");
+    return [parts[0], parts[1]];
+  };
+
   // gets the usd account for the given keys
   getAccounts = async (currency: string): Promise<Array<Account>> => {
     let accounts = await this.client.rest.account.listAccounts();
@@ -136,7 +138,7 @@ class Orderer {
     size: typeof Decimal,
     side: OrderSide
   ): Promise<Order> => {
-    let [to, from] = parseProduct(product);
+    let [to, from] = this.parseProduct(product);
 
     let toCurrency = await this.getCurrency(to);
     let fromCurrency = await this.getCurrency(from);
@@ -164,7 +166,7 @@ class Orderer {
     amount: typeof Decimal,
     side: OrderSide
   ): Promise<Order> => {
-    let [_, from] = parseProduct(product);
+    let [_, from] = this.parseProduct(product);
 
     let fromCurrency = await this.getCurrency(from);
 
@@ -196,6 +198,7 @@ async function placeOrders(
   scale: number
 ) {
   if (!orders) {
+    console.log("No orders -- aborting");
     return;
   }
   for (const order of orders) {
