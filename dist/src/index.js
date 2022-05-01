@@ -195,7 +195,7 @@ function placeOrders(orderer, orders, side, scale) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!orders) {
+                    if (!orders || orders.length == 0) {
                         console.log("No orders -- aborting");
                         return [2 /*return*/];
                     }

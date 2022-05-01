@@ -119,7 +119,6 @@ class Orderer {
     return Number(stats.last) * this.limit;
   };
 
-
   parseProduct = (p: string): [string, string] => {
     let parts = p.split("-");
     return [parts[0], parts[1]];
@@ -197,7 +196,7 @@ async function placeOrders(
   side: OrderSide,
   scale: number
 ) {
-  if (!orders) {
+  if (!orders || orders.length == 0) {
     console.log("No orders -- aborting");
     return;
   }
@@ -252,7 +251,6 @@ async function main(): Promise<void> {
 
   // We place sell orders _before_ buy orders in case we need to use the proceeds for a
   // downstream buy.
-
   console.log("Placing sell orders...");
   await placeOrders(orderer, orders.sellOrders, OrderSide.SELL, orders.scale);
 
