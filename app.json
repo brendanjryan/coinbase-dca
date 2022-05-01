@@ -34,15 +34,23 @@
       "value": "0.95"
     }
   },
-  "formation": {
-    "web": {
+  "formation": [
+    {
+      "process": "web",
       "quantity": 1
     },
-    "worker": {
+    {
+      "process": "worker",
       "quantity": 1
     }
-  },
+  ],
   "addons": [
-    "scheduler:standard"
+    {
+      "plan": "advanced-scheduler:trial",
+      "as": "scheduler",
+      "options": {
+        "app": "worker"
+      }
+    }
   ]
 }
